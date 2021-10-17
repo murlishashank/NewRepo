@@ -1,0 +1,47 @@
+import numpy as py
+from numpy.linalg import inv
+from sympy import Matrix
+
+def f1(y1, y2, y3, y1_old, dt):
+	return y1_old + (-0.04*y1 + 10**4*y2*y3)*dt - y1
+
+def f2(y1, y2, y3, y2_old, dt):
+	return y2_old + (0.04*y1 - 10**4*y2*y3 - (3.10**7)*(y2**2))*dt - y2
+
+def f3(y1, y2, y3, y3_old, dt):
+	return y3_old + ((3.10**7)*(y2**2))*dt - y3
+
+def j(y1,y2,y3):
+
+	return Matrix((-0.04*y1 + 10**4*y2*y3,0.04*y1 - 10**4*y2*y3 - (3.10**7)*(y2**2),(3.10**7)*(y2**2))).jacobian((y1,y2,y3))
+
+y_old = py.zeros((3,1))
+y_old[0] = 1
+
+#Guess values for the implicit variable
+y_guess = 2*py.ones((3,1))
+
+#New values - assumed initially
+y_new = py.ones((3,1))
+
+F = py.copy(y_new)
+
+start_time = 0
+end_time = 10
+dt = 0.01
+nt = py.arange(start_time,end_time,dt)
+
+error = 9e9
+tol = 1e-10
+alpha = 0.8
+#for i in range(0,len(nt)):
+
+	#while error>tol:
+
+jac = j(y_guess[0],y_guess[1],y_guess[2])
+
+F[0] = f1(y_guess[0],y_guess[1],y_guess[2], y_old[0], dt)
+F[1] = f2(y_guess[0],y_guess[1],y_guess[2], y_old[1], dt)
+F[2] = f3(y_guess[0],y_guess[1],y_guess[2], y_old[2], dt)
+ 
+j = inv(jac)#error
